@@ -7,6 +7,7 @@ ROLE_CHOICES = [
     ('adm', 'admin')
 ]
 
+
 class User(AbstractUser):
     username = models.CharField(
         'Имя пользователя',
@@ -40,6 +41,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
         ordering = ('id',)
 
     def __str__(self):
