@@ -19,3 +19,10 @@ class User(AbstractUser):
         choices=ROLE_CHOICES,
         default='user'
     )
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username

@@ -2,28 +2,28 @@ from django.db import models
 from users.models import User
 
 SCORE_CHOICES = [
-    (1, 1),
-    (2, 2),
-    (3, 3),
-    (4, 4),
-    (5, 5),
-    (6, 6),
-    (7, 7),
-    (8, 8),
-    (9, 9),
-    (10, 10),
+    ('1', 1),
+    ('2', 2),
+    ('3', 3),
+    ('4', 4),
+    ('5', 5),
+    ('6', 6),
+    ('7', 7),
+    ('8', 8),
+    ('9', 9),
+    ('10', 10),
 ]
 
 
 class Category(models.Model):
     category = models.CharField(
+        'Категория',
         max_length=256,
-        verbose_name='Категория'
     )
     slug = models.SlugField(
+        'Адрес',
         max_length=50,
         unique=True,
-        verbose_name='Адрес',
     )
 
     class Meta:
@@ -37,13 +37,13 @@ class Category(models.Model):
 
 class Genre(models.Model):
     genre = models.CharField(
+        'Жанр',
         max_length=256,
-        verbose_name='Жанр'
     )
     slug = models.SlugField(
+        'Адрес',
         max_length=50,
         unique=True,
-        verbose_name='Адрес',
     )
 
     class Meta:
@@ -57,17 +57,15 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
+        'Название произведения',
         max_length=256,
-        verbose_name='Название произведения'
     )
     year = models.IntegerField(
-        verbose_name='Год создания произведения'
+        'Год создания произведения'
     )
     genre = models.ForeignKey(
         Genre,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         verbose_name='Жанр',
         help_text='Жанр произведения'
     )
@@ -109,7 +107,7 @@ class Review(models.Model):
     )
     score = models.CharField(
         'Оценка',
-        max_length=2,
+        max_length=5,
         choices=SCORE_CHOICES,
     )
     pub_date = models.DateTimeField(
