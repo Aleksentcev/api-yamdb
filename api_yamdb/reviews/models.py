@@ -17,8 +17,13 @@ SCORE_CHOICES = [
 
 class Category(models.Model):
     category = models.CharField(
-        max_length=40,
+        max_length=256,
         verbose_name='Категория'
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+        verbose_name='Адрес',
     )
 
     class Meta:
@@ -32,8 +37,13 @@ class Category(models.Model):
 
 class Genre(models.Model):
     genre = models.CharField(
-        max_length=40,
+        max_length=256,
         verbose_name='Жанр'
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+        verbose_name='Адрес',
     )
 
     class Meta:
@@ -51,7 +61,6 @@ class Title(models.Model):
         verbose_name='Название произведения'
     )
     year = models.IntegerField(
-        max_length=4,
         verbose_name='Год создания произведения'
     )
     genre = models.ForeignKey(
@@ -99,6 +108,7 @@ class Review(models.Model):
         'Текст отзыва'
     )
     score = models.CharField(
+        'Оценка',
         max_length=2,
         choices=SCORE_CHOICES,
     )
