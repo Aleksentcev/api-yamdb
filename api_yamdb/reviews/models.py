@@ -16,8 +16,8 @@ SCORE_CHOICES = [
 
 
 class Category(models.Model):
-    category = models.CharField(
-        'Категория',
+    name = models.CharField(
+        'Название',
         max_length=256,
     )
     slug = models.SlugField(
@@ -27,17 +27,18 @@ class Category(models.Model):
     )
 
     class Meta:
+        ordering = ('name',)
         default_related_name = 'categories'
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.category
+        return self.name
 
 
 class Genre(models.Model):
-    genre = models.CharField(
-        'Жанр',
+    name = models.CharField(
+        'Название',
         max_length=256,
     )
     slug = models.SlugField(
@@ -47,12 +48,13 @@ class Genre(models.Model):
     )
 
     class Meta:
+        ordering = ('name',)
         default_related_name = 'genres'
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
     def __str__(self):
-        return self.genre
+        return self.name
 
 
 class Title(models.Model):
@@ -65,24 +67,22 @@ class Title(models.Model):
     )
     genre = models.ForeignKey(
         Genre,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_DEFAULT,
+        default=1,
         verbose_name='Жанр',
         help_text='Жанр произведения'
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_DEFAULT,
+        default=1,
         verbose_name='Категория',
         help_text='Категория произведения'
     )
-    pub_date = models.DateTimeField(
-        'Дата публикации',
-        auto_now_add=True,
-        db_index=True
-    )
+
 
     class Meta:
-        ordering = ('-pub_date',)
+        ordering = ('name',)
         default_related_name = 'titles'
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
@@ -127,10 +127,10 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    title = models.ForeignKey(
-        Title,
+    review = models.ForeignKey(
+        Review,
         on_delete=models.CASCADE,
-        verbose_name='Произведение'
+        verbose_name='Обзор'
     )
     author = models.ForeignKey(
         User,
