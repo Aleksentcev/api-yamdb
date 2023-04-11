@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+ROLE_CHOICES = [
+    ('usr', 'user'),
+    ('mdr', 'moderator'),
+    ('adm', 'admin')
+]
 
 class User(AbstractUser):
     username = models.CharField(
@@ -27,8 +32,9 @@ class User(AbstractUser):
     bio = models.TextField('О себе', blank=True)
     role = models.CharField(
         'Права пользователя',
+        choices=ROLE_CHOICES,
         default='user',
-        max_length=20
+        max_length=10
     )
 
     class Meta:
