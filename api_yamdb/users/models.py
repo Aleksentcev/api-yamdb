@@ -9,20 +9,40 @@ ROLE_CHOICES = [
 
 
 class User(AbstractUser):
-    bio = models.TextField(
-        'Биография',
-        blank=True,
+    username = models.CharField(
+        'Имя пользователя',
+        max_length=150,
+        unique=True
     )
+    email = models.EmailField(
+        'Адрес эл.почты',
+        max_length=254,
+        unique=True,
+        blank=False
+    )
+    first_name = models.CharField(
+        'Имя',
+        max_length=150,
+        blank=True
+    )
+    last_name = models.CharField(
+        'Фамилия',
+        max_length=150,
+        blank=True
+    )
+    bio = models.TextField('О себе', blank=True)
     role = models.CharField(
-        'Уровень доступа пользователя',
-        max_length=3,
+        'Права пользователя',
         choices=ROLE_CHOICES,
-        default='user'
+        default='user',
+        max_length=10
     )
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+        ordering = ('id',)
 
     def __str__(self):
         return self.username
