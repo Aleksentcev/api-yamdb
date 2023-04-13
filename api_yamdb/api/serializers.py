@@ -3,7 +3,7 @@ from rest_framework import serializers
 from users.models import User
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
+class UserSignUpSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('username', 'email')
         model = User
@@ -14,6 +14,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 'Использование данного имени запрещено!'
             )
         return data
+
+
+class UserGetTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('username', 'confirmation_code')
+        model = User
 
 
 class UserSerializer(serializers.ModelSerializer):
