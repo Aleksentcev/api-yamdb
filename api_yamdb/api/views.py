@@ -2,6 +2,7 @@ from rest_framework import status, viewsets, mixins, permissions
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.decorators import action
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
@@ -25,13 +26,14 @@ class UserSignUpViewSet(
     def create(self, request):
         serializer = UserSignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = User.objects.get_or_create(**serializer.validated_data)
+        user, created = User.objects.get_or_create(**serializer.validated_data)
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             subject='Код подтверждения YAMDb',
             message=f'Привет, {user.username}! '
                     f'Вот твой код: {confirmation_code}',
-            recipient_list=[user.email]
+            from_email=None,
+            recipient_list=(user.email,)
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -65,3 +67,20 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
+
+    @action(
+        detail=False, methods=['GET', 'PATCH'],
+        url_path='me', url_name='me',
+    )
+    def me(self, request):
+        serializer = UserSerializer
+        if request.method == 'PATCH':
+            serializer = UserSerializer(
+                request.user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
