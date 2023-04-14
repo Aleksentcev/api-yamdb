@@ -18,11 +18,11 @@ SCORE_CHOICES = [
 
 class Category(models.Model):
     name = models.CharField(
-        'Название',
+        'Наименование',
         max_length=256,
     )
     slug = models.SlugField(
-        'Адрес',
+        'Слаг',
         max_length=50,
         unique=True,
     )
@@ -39,11 +39,11 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(
-        'Название',
+        'Наименование',
         max_length=256,
     )
     slug = models.SlugField(
-        'Адрес',
+        'Слаг',
         max_length=50,
         unique=True,
     )
@@ -60,14 +60,14 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
-        'Название произведения',
+        'Наименование',
         max_length=256,
     )
     year = models.IntegerField(
-        'Год создания произведения',
+        'Год создания',
     )
     description = models.TextField(
-        'Описание произведения',
+        'Описание',
         blank=True,
     )
     genre = models.ManyToManyField(
@@ -79,7 +79,6 @@ class Title(models.Model):
         on_delete=models.SET_DEFAULT,
         default=1,
         verbose_name='Категория',
-        help_text='Категория произведения',
     )
 
     class Meta:
@@ -96,18 +95,18 @@ class GenreTitle(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
+        verbose_name='Произведение',
     )
     genre = models.ForeignKey(
         Genre,
         on_delete=models.SET_DEFAULT,
         default=1,
         verbose_name='Жанр',
-        help_text='Жанр произведения',
     )
 
     class Meta:
         verbose_name = 'Жанр произведения'
-        verbose_name_plural = 'Жанры произведения'
+        verbose_name_plural = 'Жанры произведений'
 
     def __str__(self):
         return f'{self.genre} {self.title}'
