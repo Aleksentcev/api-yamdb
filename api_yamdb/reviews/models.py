@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import User
 
+
 SCORE_CHOICES = [
     ('1', 1),
     ('2', 2),
@@ -62,9 +63,17 @@ class Title(models.Model):
         'Название произведения',
         max_length=256,
     )
-    year = models.IntegerField('Год создания произведения')
-    description = models.TextField('Описание произведения', blank=True)
-    genre = models.ManyToManyField(Genre, through='GenreTitle')
+    year = models.IntegerField(
+        'Год создания произведения',
+    )
+    description = models.TextField(
+        'Описание произведения',
+        blank=True,
+    )
+    genre = models.ManyToManyField(
+        Genre,
+        through='GenreTitle',
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_DEFAULT,
@@ -84,7 +93,10 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+    )
     genre = models.ForeignKey(
         Genre,
         on_delete=models.SET_DEFAULT,
@@ -103,21 +115,27 @@ class GenreTitle(models.Model):
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, verbose_name='Произведение'
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Произведение',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
-    text = models.TextField('Текст отзыва')
+    text = models.TextField(
+        'Текст отзыва',
+    )
     score = models.CharField(
         'Оценка',
         max_length=5,
         choices=SCORE_CHOICES,
     )
     pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True, db_index=True
+        'Дата публикации',
+        auto_now_add=True,
+        db_index=True,
     )
 
     class Meta:
@@ -132,16 +150,22 @@ class Review(models.Model):
 
 class Comment(models.Model):
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, verbose_name='Обзор'
+        Review,
+        on_delete=models.CASCADE,
+        verbose_name='Обзор',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
-    text = models.TextField('Текст комментария')
+    text = models.TextField(
+        'Текст комментария',
+    )
     pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True, db_index=True
+        'Дата публикации',
+        auto_now_add=True,
+        db_index=True,
     )
 
     class Meta:
