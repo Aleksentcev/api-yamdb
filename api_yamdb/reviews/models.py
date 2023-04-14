@@ -105,6 +105,7 @@ class GenreTitle(models.Model):
     )
 
     class Meta:
+        ordering = ('title', 'genre')
         verbose_name = 'Жанр произведения'
         verbose_name_plural = 'Жанры произведений'
 
@@ -138,7 +139,7 @@ class Review(models.Model):
     )
 
     class Meta:
-        ordering = ('-pub_date',)
+        ordering = ('title',)
         default_related_name = 'reviews'
         verbose_name = 'Обзор'
         verbose_name_plural = 'Обзоры'
@@ -168,7 +169,7 @@ class Comment(models.Model):
     )
 
     class Meta:
-        ordering = ('-pub_date',)
+        ordering = ('review',)
         default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
