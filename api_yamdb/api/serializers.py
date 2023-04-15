@@ -1,24 +1,28 @@
 from rest_framework import serializers
+from django.core.validators import RegexValidator
 
 from users.models import User
 
 
 class UserSignUpSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True,
+        max_length=150,
+        validators=[RegexValidator(regex=r'^[\w.@+-]+$')]
+    )
+    email = serializers.EmailField(
+        required=True,
+        max_length=254
+    )
+
     class Meta:
         fields = ('email', 'username')
         model = User
 
     def validate(self, data):
-        username = data.get('username')
-        email = data.get('email')
-
         if data.get('username') == 'me':
             raise serializers.ValidationError(
                 'Использование данного имени запрещено!'
-            )
-        if User.objects.filter(username=username) or User.objects.filter(email=email):
-            raise serializers.ValidationError(
-                'Имя пользователя или почта заняты! Используйте другие.'
             )
         return data
 

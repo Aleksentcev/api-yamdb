@@ -2,8 +2,10 @@ from rest_framework import status, viewsets, mixins, permissions
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.serializers import ValidationError
 from rest_framework.decorators import action
 from django.core.mail import send_mail
+from django.db import IntegrityError
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 
@@ -26,7 +28,12 @@ class UserSignUpViewSet(
     def create(self, request):
         serializer = UserSignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, created = User.objects.get_or_create(**serializer.validated_data)
+        try:
+            user, created = User.objects.get_or_create(
+                **serializer.validated_data
+            )
+        except IntegrityError:
+            raise ValidationError('Этот емейл уже занят')
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             subject='Код подтверждения YAMDb',
