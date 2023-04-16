@@ -1,10 +1,12 @@
+from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from datetime import datetime as dt
 
-from users.models import User
+
 from reviews.models import (
-    Category, Genre, Title, Review, Comment)
+    Title, Review, Comment)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -16,19 +18,23 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True
-    )
+    title = serializers.PrimaryKeyRelatedField(read_only=True)
     genre = serializers.SlugRelatedField(
         slug_field='name', read_only=True
     )
     category = serializers.SlugRelatedField(
         slug_field='name', read_only=True
     )
+    avg_score = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('__all__')
         model = Title
+
+    def get_avg_score(self, data):
+        return round(Review.objects.filter(
+            title=data.pk).aggregate(
+            Avg('score')).get('score__avg'))
 
     def validate(self, data):
         title_date = self.context['request'].year
@@ -51,16 +57,18 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
         model = Review
-        validators = UniqueTogetherValidator(
-            queryset=Comment.objects.all(),
-            fields=['review', 'username']
-        )
+
+    def validate(self, data):
+        author = self.context['request'].user
+        if Review.objects.filter(author=author).exists():
+            raise serializers.ValidationError(
+                'Вы уже оставляли отзыв на это произведение'
+            )
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    # review = serializers.SlugRelatedField(
-    #     slug_field='title', read_only=True
-    # )
+    review = serializers.PrimaryKeyRelatedField(read_only=True)
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True
     )
@@ -68,7 +76,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
         model = Comment
-
-
-    # def validate(self, data):
-    #     user = self.context['reuest'].user

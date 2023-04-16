@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'rest_framework_simplejwt',
     'rest_framework',
+    'djoser',
     'django_filters',
 ]
 
@@ -115,12 +116,12 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 

@@ -9,7 +9,11 @@ from .views import (
 app_name = 'api'
 
 v1_router = routers.DefaultRouter()
-v1_router.register('titles', TitleViewSet, basename='titles')
+v1_router.register(
+    'titles',
+    TitleViewSet,
+    basename='titles'
+)
 v1_router.register(
     r'titles/(?P<titles_id>\d+)/reviews',
     ReviewViewSet,
@@ -24,5 +28,6 @@ v1_router.register(
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-    # path('api-token-auth/', views.obtain_auth_token),
+    path('v1/auth/', include('djoser.urls')),
+    path('v1/auth/', include('djoser.urls.jwt')),
 ]
