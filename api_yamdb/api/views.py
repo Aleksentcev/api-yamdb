@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, permissions, filters
 
 from users.models import User
+from .permission import (
+    IsAuthorOrReadOnlyPermission, IsAdminOrReadOnlyPermission)
 from reviews.models import (
     Category, Genre, Title, Review, Comment
 )
@@ -13,14 +15,16 @@ from .serializer import (
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    permission_classes = (IsAdminOrReadOnlyPermission,)
 
-    # def perform_create(self, serializer):
-    #     serializer.save()
+    def perform_create(self, serializer):
+        serializer.save()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
 
     def get_title(self):
         return get_object_or_404(
@@ -37,6 +41,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
 
     def get_review(self):
         return get_object_or_404(

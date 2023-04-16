@@ -1,7 +1,5 @@
-from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from datetime import datetime as dt
 
 
@@ -60,7 +58,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         author = self.context['request'].user
-        if Review.objects.filter(author=author).exists():
+        if self.context['request'].method == 'POST' and Review.objects.filter(
+                author=author).exists():
             raise serializers.ValidationError(
                 'Вы уже оставляли отзыв на это произведение'
             )
