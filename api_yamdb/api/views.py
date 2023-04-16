@@ -15,6 +15,7 @@ from .serializers import (
     UserSignUpSerializer,
     UserGetTokenSerializer,
 )
+from .permissions import IsAdminOrSuperUser
 
 
 class UserSignUpViewSet(
@@ -72,12 +73,14 @@ class UserGetTokenViewSet(
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticated, IsAdminOrSuperUser)
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
 
     @action(
         detail=False, methods=['GET', 'PATCH'],
         url_path='me', url_name='me',
+        permission_classes=(permissions.IsAuthenticated,)
     )
     def me(self, request):
         serializer = UserSerializer
@@ -88,6 +91,31 @@ class UserViewSet(viewsets.ModelViewSet):
                 partial=True
             )
             serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False,
+        methods=['GET', 'PATCH', 'DELETE'],
+        url_path=r'(?P<username>[\w.@+-]+)',
+        url_name='user_profile',
+        permission_classes=(IsAdminOrSuperUser,)
+    )
+    def user_profile(self, request, username):
+        user = get_object_or_404(User, username=username)
+        if request.method == 'PATCH':
+            serializer = UserSerializer(
+                user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.method == 'DELETE':
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)

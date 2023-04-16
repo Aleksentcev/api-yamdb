@@ -3,9 +3,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
 ROLE_CHOICES = [
-    ('usr', 'user'),
-    ('mdr', 'moderator'),
-    ('adm', 'admin')
+    ('user', 'user'),
+    ('moderator', 'moderator'),
+    ('admin', 'admin')
 ]
 
 
