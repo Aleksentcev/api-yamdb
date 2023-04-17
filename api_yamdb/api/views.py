@@ -24,7 +24,9 @@ from .serializers import (
     ReviewSerializer,
     CommentSerializer,
 )
-from .permissions import IsAdminOrSuperUser, AdminOrReadOnly, IsAuthorOrReadOnlyPermission, IsAdminOrReadOnlyPermission
+from .permissions import (
+    IsAdminOrSuperUser, AdminOrReadOnly, IsAuthorOrReadOnlyPermission,
+    IsAdminOrReadOnlyPermission)
 from reviews.models import Category, Genre, Title, Review, Comment
 
 

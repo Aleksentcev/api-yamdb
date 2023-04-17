@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 
 from django.core.validators import RegexValidator
-from rest_framework import serializers
+from rest_framework import serializers, status
 from django.db.models import Avg
 
 from users.models import User
@@ -87,15 +87,6 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
-
-    # def validate(self, data):
-    #     title_date = self.context['request'].year
-    #     current_date = dt.date.today().year
-    #     if title_date > current_date:
-    #         raise serializers.ValidationError(
-    #             "Дата выхода не может быть больше текущей"
-    #         )
-    #     return data
 
 
 class ReviewSerializer(serializers.ModelSerializer):
