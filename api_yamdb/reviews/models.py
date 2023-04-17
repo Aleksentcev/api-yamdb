@@ -2,20 +2,6 @@ from django.db import models
 from users.models import User
 
 
-SCORE_CHOICES = [
-    ('1', 1),
-    ('2', 2),
-    ('3', 3),
-    ('4', 4),
-    ('5', 5),
-    ('6', 6),
-    ('7', 7),
-    ('8', 8),
-    ('9', 9),
-    ('10', 10),
-]
-
-
 class Category(models.Model):
     name = models.CharField(
         'Наименование',
@@ -69,6 +55,7 @@ class Title(models.Model):
     description = models.TextField(
         'Описание',
         blank=True,
+        null=True
     )
     genre = models.ManyToManyField(
         Genre,
@@ -76,8 +63,8 @@ class Title(models.Model):
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.SET_DEFAULT,
-        default=1,
+        on_delete=models.SET_NULL,
+        null=True,
         verbose_name='Категория',
     )
 
@@ -99,8 +86,8 @@ class GenreTitle(models.Model):
     )
     genre = models.ForeignKey(
         Genre,
-        on_delete=models.SET_DEFAULT,
-        default=1,
+        on_delete=models.SET_NULL,
+        null=True,
         verbose_name='Жанр',
     )
 
@@ -114,6 +101,18 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
+    SCORE_CHOICES = [
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 4),
+        (5, 5),
+        (6, 6),
+        (7, 7),
+        (8, 8),
+        (9, 9),
+        (10, 10),
+    ]
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -127,9 +126,8 @@ class Review(models.Model):
     text = models.TextField(
         'Текст отзыва',
     )
-    score = models.CharField(
+    score = models.IntegerField(
         'Оценка',
-        max_length=5,
         choices=SCORE_CHOICES,
     )
     pub_date = models.DateTimeField(

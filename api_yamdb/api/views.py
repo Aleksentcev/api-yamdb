@@ -1,4 +1,4 @@
-from rest_framework import status, viewsets, mixins, permissions
+from rest_framework import status, viewsets, mixins, permissions, filters
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
@@ -21,9 +21,11 @@ from .serializers import (
     GenreSerializer,
     TitleReadSerializer,
     TitleWriteSerializer,
+    ReviewSerializer,
+    CommentSerializer,
 )
-from .permissions import IsAdminOrSuperUser, AdminOrReadOnly
-from reviews.models import Category, Genre, Title
+from .permissions import IsAdminOrSuperUser, AdminOrReadOnly, IsAuthorOrReadOnlyPermission, IsAdminOrReadOnlyPermission
+from reviews.models import Category, Genre, Title, Review, Comment
 
 
 class UserSignUpViewSet(
@@ -180,3 +182,37 @@ class TitleViewSet(viewsets.ModelViewSet):
         if genre is not None:
             queryset = queryset.filter(genre__slug=genre)
         return queryset
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
+
+    def get_title(self):
+        return get_object_or_404(
+            Title, id=self.kwargs['titles_id']
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            title=self.get_title(),
+        )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
+
+    def get_review(self):
+        return get_object_or_404(
+            Review, id=self.kwargs['review_id']
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            review=self.get_review()
+        )
