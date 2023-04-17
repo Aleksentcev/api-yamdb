@@ -205,6 +205,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorOrReadOnlyPermission,)
+    pagination_class = PageNumberPagination
 
     def get_review(self):
         return get_object_or_404(

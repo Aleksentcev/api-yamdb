@@ -70,9 +70,9 @@ class TitleReadSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'year', 'description', 'genre', 'category', 'avg_score')
 
     def get_avg_score(self, data):
-        return round(Review.objects.filter(
+        return Review.objects.filter(
             title=data.pk).aggregate(
-            Avg('score')).get('score__avg'))
+            Avg('score')).get('score__avg')
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
