@@ -141,7 +141,12 @@ class Review(models.Model):
         default_related_name = 'reviews'
         verbose_name = 'Обзор'
         verbose_name_plural = 'Обзоры'
-        unique_together = ('title', 'author',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_review'
+            ),
+        ]
 
     def __str__(self):
         return self.text
