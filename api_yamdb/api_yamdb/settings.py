@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'rest_framework_simplejwt',
     'rest_framework',
-    'djoser',
     'django_filters',
 ]
 
