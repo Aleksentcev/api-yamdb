@@ -1,4 +1,4 @@
-from rest_framework import status, viewsets, mixins, permissions
+from rest_framework import status, viewsets, permissions
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
