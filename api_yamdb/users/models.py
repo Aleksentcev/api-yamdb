@@ -2,10 +2,13 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
+USER = ('user', 'пользователь')
+MODERATOR = ('moderator', 'модератор')
+ADMIN = ('admin', 'админстратор')
 ROLE_CHOICES = [
-    ('user', 'user'),
-    ('moderator', 'moderator'),
-    ('admin', 'admin')
+    USER,
+    MODERATOR,
+    ADMIN
 ]
 
 
@@ -14,14 +17,12 @@ class User(AbstractUser):
         'Имя пользователя',
         max_length=150,
         unique=True,
-        blank=False,
         validators=[RegexValidator(regex=r'^[\w.@+-]+$')]
     )
     email = models.EmailField(
         'Адрес эл.почты',
         max_length=254,
         unique=True,
-        blank=False
     )
     first_name = models.CharField(
         'Имя',
@@ -48,3 +49,11 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR[0]
+
+    @property
+    def is_admin(self):
+        return self.role == ADMIN[0]
