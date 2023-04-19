@@ -2,9 +2,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
-USER = ('user', 'пользователь')
-MODERATOR = ('moderator', 'модератор')
-ADMIN = ('admin', 'администратор')
+USER = ('user', 'Пользователь')
+MODERATOR = ('moderator', 'Модератор')
+ADMIN = ('admin', 'Администратор')
+
 ROLE_CHOICES = [
     USER,
     MODERATOR,

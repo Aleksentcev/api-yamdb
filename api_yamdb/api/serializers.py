@@ -20,12 +20,12 @@ class UserSignUpSerializer(serializers.ModelSerializer):
         fields = ('email', 'username')
         model = User
 
-    def validate(self, data):
-        if data.get('username') == 'me':
+    def validate_username(self, value):
+        if value == 'me':
             raise serializers.ValidationError(
                 'Использование данного имени запрещено!'
             )
-        return data
+        return value
 
 
 class UserGetTokenSerializer(serializers.Serializer):

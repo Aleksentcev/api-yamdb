@@ -2,7 +2,6 @@ from rest_framework import status, viewsets, mixins, permissions
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.serializers import ValidationError
 from rest_framework.decorators import action
 from django.core.mail import send_mail
 from django.db import IntegrityError
@@ -27,11 +26,11 @@ from .permissions import (
     IsAdminOrReadOnly,
     IsAuthorOrReadOnly,
 )
-from .viewsets import ListCreateDestroyViewSet
+from .viewsets import CreateViewSet, ListCreateDestroyViewSet
 from reviews.models import Category, Genre, Title, Review, Comment
 
 
-class UserSignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class UserSignUpViewSet(CreateViewSet):
     queryset = User.objects.all()
     serializer_class = UserSignUpSerializer
     permission_classes = (permissions.AllowAny,)
@@ -39,12 +38,18 @@ class UserSignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         serializer = UserSignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data.get('username')
         try:
             user, created = User.objects.get_or_create(
                 **serializer.validated_data
             )
         except IntegrityError:
-            raise ValidationError('Этот емейл уже занят')
+            error = (
+                {'username': ['Это имя уже занято.']}
+                if User.objects.filter(username=username).exists()
+                else {'email': ['Этот емейл уже занят.']}
+            )
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             subject='Код подтверждения YAMDb',
@@ -56,7 +61,7 @@ class UserSignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class UserGetTokenViewSet(CreateViewSet):
     queryset = User.objects.all()
     serializer_class = UserGetTokenSerializer
     permission_classes = (permissions.AllowAny,)
@@ -64,15 +69,21 @@ class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         serializer = UserGetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = get_object_or_404(
-            User, username=serializer.validated_data.get('username')
-        )
+        error = {
+            'username': ['Имя пользователя и проверочный код не совпадают!']
+        }
+        try:
+            user = User.objects.get(
+                username=serializer.validated_data.get('username')
+            )
+        except User.DoesNotExist:
+            return Response(error, status=status.HTTP_404_NOT_FOUND)
         if default_token_generator.check_token(
             user, serializer.validated_data.get('confirmation_code')
         ):
             token = AccessToken.for_user(user)
             return Response({'token': str(token)}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
