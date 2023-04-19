@@ -126,7 +126,7 @@ class Review(models.Model):
     text = models.TextField(
         'Текст отзыва',
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         'Оценка',
         choices=SCORE_CHOICES,
     )
