@@ -1,4 +1,8 @@
+import datetime as dt
+
+from django.core.validators import MaxValueValidator
 from django.db import models
+
 from users.models import User
 
 
@@ -44,18 +48,23 @@ class Genre(models.Model):
         return self.name
 
 
+def get_deleted_category():
+    return Category.objects.get_or_create(name="deleted")[0]
+
+
 class Title(models.Model):
     name = models.CharField(
         'Наименование',
         max_length=256,
     )
-    year = models.IntegerField(
+    year = models.PositiveSmallIntegerField(
         'Год создания',
+        validators=[
+            MaxValueValidator(dt.date.today().year),
+        ],
     )
     description = models.TextField(
         'Описание',
-        blank=True,
-        null=True
     )
     genre = models.ManyToManyField(
         Genre,
@@ -63,8 +72,7 @@ class Title(models.Model):
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.SET_NULL,
-        null=True,
+        on_delete=models.SET(get_deleted_category),
         verbose_name='Категория',
     )
 
@@ -78,6 +86,10 @@ class Title(models.Model):
         return self.name
 
 
+def get_deleted_genre():
+    return Genre.objects.get_or_create(name="deleted")[0]
+
+
 class GenreTitle(models.Model):
     title = models.ForeignKey(
         Title,
@@ -86,8 +98,7 @@ class GenreTitle(models.Model):
     )
     genre = models.ForeignKey(
         Genre,
-        on_delete=models.SET_NULL,
-        null=True,
+        on_delete=models.SET(get_deleted_genre),
         verbose_name='Жанр',
     )
 
@@ -126,7 +137,7 @@ class Review(models.Model):
     text = models.TextField(
         'Текст отзыва',
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         'Оценка',
         choices=SCORE_CHOICES,
     )
@@ -143,8 +154,7 @@ class Review(models.Model):
         verbose_name_plural = 'Обзоры'
         constraints = [
             models.UniqueConstraint(
-                fields=['title', 'author'],
-                name='unique_review'
+                fields=['title', 'author'], name='unique_review'
             ),
         ]
 

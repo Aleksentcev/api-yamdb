@@ -22,9 +22,11 @@ from .serializers import (
     CommentSerializer,
 )
 from .permissions import (
-    IsAdminOrSuperUser, IsAdminOrReadOnly, IsAuthorOrReadOnly,
+    IsAdminOrSuperUser,
+    IsAdminOrReadOnly,
+    IsAuthorOrReadOnly,
 )
-from .viewsets import CreateViewSet
+from .viewsets import CreateViewSet, ListCreateDestroyViewSet
 from reviews.models import Category, Genre, Title, Review, Comment
 
 
@@ -52,9 +54,9 @@ class UserSignUpViewSet(CreateViewSet):
         send_mail(
             subject='Код подтверждения YAMDb',
             message=f'Привет, {user.username}! '
-                    f'Вот твой код: {confirmation_code}',
+            f'Вот твой код: {confirmation_code}',
             from_email=None,
-            recipient_list=(user.email,)
+            recipient_list=(user.email,),
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -77,8 +79,7 @@ class UserGetTokenViewSet(CreateViewSet):
         except User.DoesNotExist:
             return Response(error, status=status.HTTP_404_NOT_FOUND)
         if default_token_generator.check_token(
-            user,
-            serializer.validated_data.get('confirmation_code')
+            user, serializer.validated_data.get('confirmation_code')
         ):
             token = AccessToken.for_user(user)
             return Response({'token': str(token)}, status=status.HTTP_200_OK)
@@ -93,17 +94,17 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
 
     @action(
-        detail=False, methods=['GET', 'PATCH'],
-        url_path='me', url_name='me',
-        permission_classes=(permissions.IsAuthenticated,)
+        detail=False,
+        methods=['GET', 'PATCH'],
+        url_path='me',
+        url_name='me',
+        permission_classes=(permissions.IsAuthenticated,),
     )
     def me(self, request):
         serializer = UserSerializer
         if request.method == 'PATCH':
             serializer = UserSerializer(
-                request.user,
-                data=request.data,
-                partial=True
+                request.user, data=request.data, partial=True
             )
             serializer.is_valid(raise_exception=True)
             serializer.save(role=request.user.role)
@@ -116,16 +117,12 @@ class UserViewSet(viewsets.ModelViewSet):
         methods=['GET', 'PATCH', 'DELETE'],
         url_path=r'(?P<username>[\w.@+-]+)',
         url_name='user_profile',
-        permission_classes=(IsAdminOrSuperUser,)
+        permission_classes=(IsAdminOrSuperUser,),
     )
     def user_profile(self, request, username):
         user = get_object_or_404(User, username=username)
         if request.method == 'PATCH':
-            serializer = UserSerializer(
-                user,
-                data=request.data,
-                partial=True
-            )
+            serializer = UserSerializer(user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -136,12 +133,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
+class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -150,12 +142,7 @@ class CategoryViewSet(
     lookup_field = 'slug'
 
 
-class GenreViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
+class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -194,15 +181,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return self.get_title().reviews.all()
 
     def get_title(self):
-        return get_object_or_404(
-            Title, id=self.kwargs.get('titles_id')
-        )
+        return get_object_or_404(Title, id=self.kwargs.get('titles_id'))
 
     def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user,
-            title=self.get_title()
-        )
+        serializer.save(author=self.request.user, title=self.get_title())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -211,12 +193,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrReadOnly,)
 
     def get_review(self):
-        return get_object_or_404(
-            Review, id=self.kwargs.get('review_id')
-        )
+        return get_object_or_404(Review, id=self.kwargs.get('review_id'))
 
     def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user,
-            review=self.get_review()
-        )
+        serializer.save(author=self.request.user, review=self.get_review())

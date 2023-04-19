@@ -1,3 +1,5 @@
+import datetime as dt
+
 from rest_framework import serializers
 from django.core.validators import RegexValidator
 from django.db.models import Avg
@@ -10,12 +12,9 @@ class UserSignUpSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         required=True,
         max_length=150,
-        validators=[RegexValidator(regex=r'^[\w.@+-]+$')]
+        validators=[RegexValidator(regex=r'^[\w.@+-]+$')],
     )
-    email = serializers.EmailField(
-        required=True,
-        max_length=254
-    )
+    email = serializers.EmailField(required=True, max_length=254)
 
     class Meta:
         fields = ('email', 'username')
@@ -35,11 +34,14 @@ class UserGetTokenSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         fields = (
-            'username', 'email', 'first_name',
-            'last_name', 'bio', 'role'
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
         )
         model = User
 
@@ -65,15 +67,22 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
-            'id', 'name', 'year', 'description',
-            'genre', 'category', 'rating'
+            'id',
+            'name',
+            'year',
+            'description',
+            'genre',
+            'category',
+            'rating',
         )
         model = Title
 
     def get_rating(self, data):
-        return Review.objects.filter(
-            title=data.pk).aggregate(
-            Avg('score')).get('score__avg')
+        return (
+            Review.objects.filter(title=data.pk)
+            .aggregate(Avg('score'))
+            .get('score__avg')
+        )
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
@@ -87,6 +96,23 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
         model = Title
+
+    def to_representation(self, instance):
+        serializer = TitleReadSerializer(instance)
+        return serializer.data
+
+    def validate_genre(self, value):
+        if not value:
+            raise serializers.ValidationError('Не указаны жанры')
+        return value
+
+    def validate_year(self, value):
+        today_year = dt.date.today().year
+        if not (0 <= value <= today_year):
+            raise serializers.ValidationError(
+                'Проверьте год создания произведения'
+            )
+        return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):

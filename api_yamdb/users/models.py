@@ -2,15 +2,14 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
-
-USER = 'user'
-MODERATOR = 'moderator'
-ADMIN = 'admin'
+USER = ('user', 'Пользователь')
+MODERATOR = ('moderator', 'Модератор')
+ADMIN = ('admin', 'Администратор')
 
 ROLE_CHOICES = [
-    (USER, 'Пользователь'),
-    (MODERATOR, 'Модератор'),
-    (ADMIN, 'Администратор')
+    USER,
+    MODERATOR,
+    ADMIN
 ]
 
 
@@ -40,7 +39,7 @@ class User(AbstractUser):
     role = models.CharField(
         'Права пользователя',
         choices=ROLE_CHOICES,
-        default=USER,
+        default=USER[0],
         max_length=10
     )
 
@@ -51,3 +50,11 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR[0]
+
+    @property
+    def is_admin(self):
+        return self.role == ADMIN[0]
