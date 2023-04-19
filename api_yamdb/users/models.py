@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 
 USER = ('user', 'пользователь')
 MODERATOR = ('moderator', 'модератор')
-ADMIN = ('admin', 'админстратор')
+ADMIN = ('admin', 'администратор')
 ROLE_CHOICES = [
     USER,
     MODERATOR,
