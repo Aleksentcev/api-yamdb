@@ -57,7 +57,3 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == ADMIN[0]
-
-    @property
-    def email_adress(self):
-        return self.email
