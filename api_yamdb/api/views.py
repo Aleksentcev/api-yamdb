@@ -2,7 +2,6 @@ from rest_framework import status, viewsets, mixins, permissions
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.serializers import ValidationError
 from rest_framework.decorators import action
 from django.core.mail import send_mail
 from django.db import IntegrityError
@@ -25,13 +24,11 @@ from .serializers import (
 from .permissions import (
     IsAdminOrSuperUser, IsAdminOrReadOnly, IsAuthorOrReadOnly,
 )
+from .viewsets import CreateViewSet
 from reviews.models import Category, Genre, Title, Review, Comment
 
 
-class UserSignUpViewSet(
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet
-):
+class UserSignUpViewSet(CreateViewSet):
     queryset = User.objects.all()
     serializer_class = UserSignUpSerializer
     permission_classes = (permissions.AllowAny,)
@@ -39,12 +36,18 @@ class UserSignUpViewSet(
     def create(self, request):
         serializer = UserSignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data.get('username')
         try:
             user, created = User.objects.get_or_create(
                 **serializer.validated_data
             )
         except IntegrityError:
-            raise ValidationError('Этот емейл уже занят')
+            error = (
+                {'username': ['Это имя уже занято.']}
+                if User.objects.filter(username=username).exists()
+                else {'email': ['Этот емейл уже занят.']}
+            )
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             subject='Код подтверждения YAMDb',
@@ -56,10 +59,7 @@ class UserSignUpViewSet(
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserGetTokenViewSet(
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet
-):
+class UserGetTokenViewSet(CreateViewSet):
     queryset = User.objects.all()
     serializer_class = UserGetTokenSerializer
     permission_classes = (permissions.AllowAny,)
@@ -77,7 +77,10 @@ class UserGetTokenViewSet(
         ):
             token = AccessToken.for_user(user)
             return Response({'token': str(token)}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        error = {
+            'username': ['Имя пользователя и проверочный код не совпадают!']
+        }
+        return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
