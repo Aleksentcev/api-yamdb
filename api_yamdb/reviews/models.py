@@ -48,10 +48,6 @@ class Genre(models.Model):
         return self.name
 
 
-def get_deleted_category():
-    return Category.objects.get_or_create(name="deleted")[0]
-
-
 class Title(models.Model):
     name = models.CharField(
         'Наименование',
@@ -65,6 +61,7 @@ class Title(models.Model):
     )
     description = models.TextField(
         'Описание',
+        blank=True,
     )
     genre = models.ManyToManyField(
         Genre,
@@ -72,7 +69,7 @@ class Title(models.Model):
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.SET(get_deleted_category),
+        on_delete=models.PROTECT,
         verbose_name='Категория',
     )
 
@@ -86,10 +83,6 @@ class Title(models.Model):
         return self.name
 
 
-def get_deleted_genre():
-    return Genre.objects.get_or_create(name="deleted")[0]
-
-
 class GenreTitle(models.Model):
     title = models.ForeignKey(
         Title,
@@ -98,7 +91,7 @@ class GenreTitle(models.Model):
     )
     genre = models.ForeignKey(
         Genre,
-        on_delete=models.SET(get_deleted_genre),
+        on_delete=models.PROTECT,
         verbose_name='Жанр',
     )
 

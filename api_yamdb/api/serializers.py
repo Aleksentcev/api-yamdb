@@ -1,8 +1,7 @@
-import datetime as dt
-
 from rest_framework import serializers
 from django.core.validators import RegexValidator
 from django.db.models import Avg
+from django.utils import timezone
 
 from users.models import User
 from reviews.models import Category, Genre, Title, Review, Comment
@@ -107,10 +106,9 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         return value
 
     def validate_year(self, value):
-        today_year = dt.date.today().year
-        if not (0 <= value <= today_year):
+        if not (0 <= value <= timezone.now().year):
             raise serializers.ValidationError(
-                'Проверьте год создания произведения'
+                'Убедитесь, что это значение больше либо равно 0.'
             )
         return value
 
