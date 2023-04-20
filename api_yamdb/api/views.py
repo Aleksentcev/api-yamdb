@@ -69,7 +69,7 @@ class UserGetTokenViewSet(CreateViewSet):
     def create(self, request):
         serializer = UserGetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        error = {
+        name_error = {
             'username': ['Имя пользователя и проверочный код не совпадают!']
         }
         try:
@@ -77,13 +77,16 @@ class UserGetTokenViewSet(CreateViewSet):
                 username=serializer.validated_data.get('username')
             )
         except User.DoesNotExist:
-            return Response(error, status=status.HTTP_404_NOT_FOUND)
+            return Response(name_error, status=status.HTTP_404_NOT_FOUND)
+        code_error = {
+            'confirmation_code': ['Неверный код подтверждения!']
+        }
         if default_token_generator.check_token(
             user, serializer.validated_data.get('confirmation_code')
         ):
             token = AccessToken.for_user(user)
             return Response({'token': str(token)}, status=status.HTTP_200_OK)
-        return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        return Response(code_error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
