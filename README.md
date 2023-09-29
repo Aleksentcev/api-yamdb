@@ -1,3 +1,6 @@
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) ![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white) ![DjangoREST](https://img.shields.io/badge/DJANGO-REST-ff1709?style=for-the-badge&logo=django&logoColor=white&color=ff1709&labelColor=gray)
+
+
 # Проект YaMDb 
 
 YaMDb собирает отзывы пользователей на произведения. Произведения делятся на категории: «Книги», «Фильмы», «Музыка».
@@ -205,4 +208,4 @@ pytest-pythonpath==0.7.3
 
 Александр	Иващенко - Модели/View/Эндпойнты,
 Дмитрий Кателевский - Отзывы/Комментарии/Рейтинг,
-Михаил Алексенцев - Управление пользователями.
+Михаил Алексенцев (тимлид) - Управление пользователями [![Telegram](https://img.shields.io/badge/aleksentcev-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white&link=https://t.me/aleksentcev)](https://t.me/aleksentcev)
