@@ -207,7 +207,9 @@ pytest-pythonpath==0.7.3
 ### Над проектом работали:
 
 Александр	Иващенко - Модели/View/Эндпойнты,
+
 Дмитрий Кателевский - Отзывы/Комментарии/Рейтинг,
+
 Михаил Алексенцев (тимлид) - Управление пользователями
 
 [![Telegram](https://img.shields.io/badge/aleksentcev-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white&link=https://t.me/aleksentcev)](https://t.me/aleksentcev)
